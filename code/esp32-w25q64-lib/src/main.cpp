@@ -12,6 +12,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   spiChip.begin();
+  
   spiChip.getId(chipId);
   // Print ID
   Serial.print("Chip ID in bytes: ");
@@ -21,11 +22,14 @@ void setup() {
   }
   Serial.println();
 
+  // Menulis data ke chip W25Q64
   memcpy(writePage, "Nusantech Academy", sizeof("Nusantech Academy"));
   spiChip.erasePageSector(0xFFFF);
   spiChip.pageWrite(writePage, 0xFFFF);
   Serial.println("Done writing");
   delay(1000);
+
+  // Baca hasil penulisan data di W25Q64
   Serial.println("Start Reading...");
   spiChip.readPages(readPage, 0xFFFF, 1);
   Serial.print("Data read from chip: ");

@@ -48,3 +48,4 @@ void bh1750Request(int address) {
   Wire.write(0x10);                 // 1lx reolution 120ms
   Wire.endTransmission();
 }
+

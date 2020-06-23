@@ -7,9 +7,9 @@
 #define DHT_TYPE DHT11
 
 DHT dht(DHT_PIN, DHT_TYPE);
-float temperature;
+float temperature = 0;
 
-float readTemp();
+void readTemp();
 
 void setup() {
   // put your setup code here, to run once:
@@ -19,11 +19,11 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  temperature = readTemp();
+  readTemp();
   Serial.println(temperature);
   delay(5000);
 }
 
-float readTemp() {
-  return dht.readTemperature();
+void readTemp() {
+  temperature = dht.readTemperature();
 }
