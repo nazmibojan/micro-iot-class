@@ -7,11 +7,11 @@
 #include <SPI.h>
 #include <DHT.h>
 
-#define DHT_PIN 5
-#define DHT_TYPE DHT11
-
 #define SERVICE_UUID "4d933c08-b3b8-11ea-b3de-0242ac130004"
 #define CHARACTERISTIC_UUID "5bc0180a-b3b8-11ea-b3de-0242ac130004"
+
+#define DHT_PIN 5
+#define DHT_TYPE DHT11
 
 DHT dht(DHT_PIN, DHT_TYPE);
 float temperature = 0, humidity = 0;
@@ -25,17 +25,18 @@ void setup() {
   Serial.begin(9600);
   dht.begin();
 
-  BLEDevice::init("ESP32-BLE-Server");
+  BLEDevice::init("ESP32-BLE");
   BLEServer *pServer = BLEDevice::createServer();
   BLEService *pService = pServer->createService(SERVICE_UUID);
   pCharacteristic = pService->createCharacteristic(
       CHARACTERISTIC_UUID, BLECharacteristic::PROPERTY_READ |
-                               BLECharacteristic::PROPERTY_WRITE |
                                BLECharacteristic::PROPERTY_NOTIFY |
                                BLECharacteristic::PROPERTY_INDICATE);
   pCharacteristic->addDescriptor(new BLE2902());
   pService->start();
 
+  pServer->getAdvertising()->setMinPreferred(0x06);
+  pServer->getAdvertising()->setMaxPreferred(0x12);
   pServer->getAdvertising()->start();
   Serial.println("Characteristic defined!");
 }
@@ -43,11 +44,10 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   updateDhtData();
-  String sentence = "Suhu: " + String(temperature) + " C dan Kelembaban: " +
-                    String(humidity) + " %";
-  Serial.println(sentence);
+  String sensorData = String(temperature) + ";" + String(humidity);
+  Serial.println(sensorData);
 
-  pCharacteristic->setValue(sentence.c_str());
+  pCharacteristic->setValue(sensorData.c_str());
   pCharacteristic->notify();
   delay(5000);
 }

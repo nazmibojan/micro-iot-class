@@ -8,14 +8,14 @@
 #define DHT_TYPE DHT11
 
 BluetoothSerial SerialBT;
-DHT dht(DHT_PIN, DHT_TYPE);
 float temperature = 0, humidity = 0;
+DHT dht(DHT_PIN, DHT_TYPE);
 
 void updateDhtData();
 
 void setup() {
   // put your setup code here, to run once:
-  SerialBT.begin("ESP32-Test");
+  SerialBT.begin("ESP32-BTClassic");
   dht.begin();
 }
 

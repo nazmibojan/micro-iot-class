@@ -35,10 +35,10 @@ class BLECallback : public BLECharacteristicCallbacks {
       Serial.println("*********");
     }
 
-    if (rxValue == "led on") {
+    if (rxValue == "1") {
       Serial.println("Turning ON LED!");
       digitalWrite(BUILTIN_LED, HIGH);
-    } else if (rxValue == "led off") {
+    } else if (rxValue == "0") {
       Serial.println("Turning OFF LED!");
       digitalWrite(BUILTIN_LED, LOW);
     } else {
@@ -55,7 +55,7 @@ void setup() {
   pinMode(BUILTIN_LED, OUTPUT);
   dht.begin();
 
-  BLEDevice::init("ESP32-BLE-Server");
+  BLEDevice::init("ESP32-BLE-TxRx");
   BLEServer *pServer = BLEDevice::createServer();
   BLEService *pService = pServer->createService(SERVICE_UUID);
   // Sensor Data Characteristic
@@ -71,7 +71,7 @@ void setup() {
                                   BLECharacteristic::PROPERTY_NOTIFY |
                                   BLECharacteristic::PROPERTY_INDICATE);
   pRxCharacteristic->addDescriptor(new BLE2902());
-  pRxCharacteristic->setValue("Write command here...");
+  pRxCharacteristic->setValue("0");
   pRxCharacteristic->setCallbacks(new BLECallback());
   pService->start();
 
@@ -84,11 +84,10 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   updateDhtData();
-  String sentence = "Suhu: " + String(temperature) + " C dan Kelembaban: " +
-                    String(humidity) + " %";
-  Serial.println(sentence);
+  String sensorData = String(temperature) + ";" + String(humidity);
+  Serial.println(sensorData);
 
-  pTxCharacteristic->setValue(sentence.c_str());
+  pTxCharacteristic->setValue(sensorData.c_str());
   pTxCharacteristic->notify();
   delay(5000);
 }
