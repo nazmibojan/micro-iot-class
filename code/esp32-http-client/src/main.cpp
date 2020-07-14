@@ -59,7 +59,7 @@ void connectToNetwork() {
 
 void telePrintChatId() {
   http.begin("https://api.telegram.org/"
-             "bot1383965879:AAEII9ZEdPWYiAyH57JRseQVjMYvZmDBcKM/getUpdates");
+             "bot<BOT TOKEN>/getUpdates");
   int httpResponseCode = http.GET();
 
   if (httpResponseCode > 0) {
@@ -78,7 +78,7 @@ void telePrintChatId() {
 void teleSendMessage(String payload) {
   Serial.println(payload);
   http.begin("https://api.telegram.org/"
-             "bot1383965879:AAEII9ZEdPWYiAyH57JRseQVjMYvZmDBcKM/sendMessage");
+             "bot<BOT TOKEN>/sendMessage");
   http.addHeader("Content-Type", "application/json");
   int httpResponseCode = http.POST(payload);
 
