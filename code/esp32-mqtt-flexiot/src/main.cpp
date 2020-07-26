@@ -18,15 +18,16 @@ String humidity;
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
-String ssid = "ipop";
-String pass = "iyanfopi";
-String mqttServer = "hairdresser.cloudmqtt.com";
-String mqttUser = "nglettrq";
-String mqttPwd = "RVPcR2AQJEV1";
+String ssid = "Mako Brimob";
+String pass = "mantapjiwa";
+String mqttServer = "mqtt.flexiot.xl.co.id";
+String mqttUser = "generic_brand_2003-esp32_test-mqtt_test_4814";
+String mqttPwd = "1595751290_4814";
 String deviceId = "Home_Gateway_1";
-String pubTopic = String(deviceId + "/sensor_data");
-String subTopic = String(deviceId + "/led_status");
-String mqttPort = "18848";
+String mac = "3143861076070942";
+String pubTopic = "generic_brand_2003/esp32_test/mqtt_test/common";
+String subTopic = String("+/" + mac + "/generic_brand_2003/esp32_test/mqtt_test/sub");
+String mqttPort = "1883";
 
 WiFiClient ESPClient;
 PubSubClient ESPMqtt(ESPClient);
@@ -80,6 +81,7 @@ void loop() {
 
 void connectToNetwork() {
   delay(10);
+  Serial.println("Try connecting to WiFi");
   WiFi.begin(ssid.c_str(), pass.c_str());
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -91,7 +93,7 @@ void connectToMqtt() {
   while (!ESPMqtt.connected()) {
     Serial.println("ESP > Connecting to MQTT...");
 
-    if (ESPMqtt.connect("ESP32Client", mqttUser.c_str(), mqttPwd.c_str())) {
+    if (ESPMqtt.connect(deviceId.c_str(), mqttUser.c_str(), mqttPwd.c_str())) {
       Serial.println("Connected to Server");
       // subscribe to the topic
       ESPMqtt.subscribe(subTopic.c_str());
@@ -106,16 +108,17 @@ void connectToMqtt() {
 
 void publishMessage() {
   char msgToSend[1024] = {0};
-  const size_t capacity = JSON_OBJECT_SIZE(4);
+  const size_t capacity = JSON_OBJECT_SIZE(5);
   DynamicJsonDocument doc(capacity);
 
   temperature = String(tempFloat);
   humidity = String(humidFloat);
 
-  doc["eventName"] = "sensorStatus";
+  doc["eventName"] = "dht11Status";
   doc["status"] = "none";
   doc["temp"] = temperature.c_str();
   doc["humid"] = humidity.c_str();
+  doc["mac"] = mac.c_str();
 
   serializeJson(doc, msgToSend);
 
@@ -144,21 +147,23 @@ void mqttCallback(char *topic, byte *payload, long length) {
 }
 
 void do_actions(const char *message) {
-  const size_t capacity = JSON_OBJECT_SIZE(2) + 30;
+  const size_t capacity = 2*JSON_OBJECT_SIZE(2) + 60;
   DynamicJsonDocument doc(capacity);
 
   deserializeJson(doc, message);
 
-  const char *deviceId = doc["deviceId"];   
-  const char *ledStatus = doc["ledStatus"]; 
+  const char* action = doc["action"];
+  const char* param_mac = doc["param"]["mac"]; 
+  const char* param_value = doc["param"]["value"];
 
-  if (String(ledStatus) == "ON") {
+  if (String(param_value) == "on") {
     Serial.println("TURN ON LED");
     digitalWrite(BUILTIN_LED, HIGH);
-  } else if (String(ledStatus) == "OFF") {
+  } else if (String(param_value) == "off") {
     Serial.println("TURN Off LED");
     digitalWrite(BUILTIN_LED, LOW);
   } else {
     Serial.println("Could not recognize LED Status");
   }
 }
+

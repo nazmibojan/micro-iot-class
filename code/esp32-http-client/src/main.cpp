@@ -6,7 +6,7 @@
 const char *ssid = "#########";
 const char *password = "###########";
 const size_t capacity = JSON_OBJECT_SIZE(2);
-String message;
+char message[1024];
 
 DynamicJsonDocument doc(capacity);
 HTTPClient http;

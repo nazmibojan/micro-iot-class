@@ -13,8 +13,6 @@
 // Configure TinyGSM library
 #define TINY_GSM_MODEM_SIM800 // Modem is SIM800
 
-const char *ssid = "#########";
-const char *password = "###########";
 const size_t capacity = JSON_OBJECT_SIZE(2);
 String message;
 
@@ -23,12 +21,19 @@ const char apn[] = "AXIS";        // APN
 const char gprsUser[] = "axis";   // GPRS User
 const char gprsPass[] = "123456"; // GPRS Password
 
+// Server details
+const char server[] = "api.telegram.org";
+const char getIdresource[] = "/bot1383965879:AAEII9ZEdPWYiAyH57JRseQVjMYvZmDBcKM/getUpdates";
+const char sendMsgresource[] = "/bot1383965879:AAEII9ZEdPWYiAyH57JRseQVjMYvZmDBcKM/sendMessage";
+const int  port = 80;
+
 #include <TinyGsmClient.h>
+#include <ArduinoHttpClient.h>
 
 TinyGsm modem(SerialAT);
 TinyGsmClient GsmClient(modem);
 DynamicJsonDocument doc(capacity);
-HTTPClient http;
+HttpClient http(GsmClient, server, port);
 
 void connectToGprs();
 void telePrintChatId();
@@ -50,15 +55,25 @@ void setup() {
   }
   delay(1000);
 
+  modem.sendAT(GF("+CIPSSL=1"));    //enable ssl. maybe don't need
+  modem.waitResponse();
+  // modem.
+
+  // if (!modem.hasSSL()) {
+  //   Serial.println("SSL is not supported by this modem");
+  //   //delay(10000);
+  //   return;
+  // }
+
   connectToGprs();
   delay(1000);
 
   telePrintChatId();
-  delay(3000);
-  doc["chat_id"] = 153457830;
-  doc["text"] = "Hello World";
-  serializeJson(doc, message);
-  teleSendMessage(message);
+  // delay(3000);
+  // doc["chat_id"] = 153457830;
+  // doc["text"] = "Hello World";
+  // serializeJson(doc, message);
+  // teleSendMessage(message);
 }
 
 void loop() {
@@ -90,12 +105,11 @@ void connectToGprs() {
 }
 
 void telePrintChatId() {
-  http.begin("https://api.telegram.org/"
-             "bot<BOT TOKEN>/getUpdates");
-  int httpResponseCode = http.GET();
+  http.get(getIdresource);
+  int httpResponseCode = http.responseStatusCode();
 
   if (httpResponseCode > 0) {
-    String response = http.getString(); // Get the response to the request
+    String response = http.responseBody(); // Get the response to the request
 
     Serial.println(httpResponseCode); // Print return code
     Serial.println(response);         // Print request answer
@@ -104,25 +118,25 @@ void telePrintChatId() {
     Serial.println(httpResponseCode);
   }
 
-  http.end();
+  http.stop();
 }
 
 void teleSendMessage(String payload) {
-  Serial.println(payload);
-  http.begin("https://api.telegram.org/"
-             "bot<BOT TOKEN>/sendMessage");
-  http.addHeader("Content-Type", "application/json");
-  int httpResponseCode = http.POST(payload);
+  // Serial.println(payload);
+  // http.begin("https://api.telegram.org/"
+  //            "bot<BOT TOKEN>/sendMessage");
+  // http.addHeader("Content-Type", "application/json");
+  // int httpResponseCode = http.POST(payload);
 
-  if (httpResponseCode > 0) {
-    String response = http.getString(); // Get the response to the request
+  // if (httpResponseCode > 0) {
+  //   String response = http.getString(); // Get the response to the request
 
-    Serial.println(httpResponseCode); // Print return code
-    Serial.println(response);         // Print request answer
-  } else {
-    Serial.print("Error on sending POST: ");
-    Serial.println(httpResponseCode);
-  }
+  //   Serial.println(httpResponseCode); // Print return code
+  //   Serial.println(response);         // Print request answer
+  // } else {
+  //   Serial.print("Error on sending POST: ");
+  //   Serial.println(httpResponseCode);
+  // }
 
-  http.end();
+  // http.end();
 }
