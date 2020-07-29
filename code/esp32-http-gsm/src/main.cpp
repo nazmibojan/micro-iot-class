@@ -23,8 +23,8 @@ const char gprsPass[] = "123456"; // GPRS Password
 
 // Server details
 const char server[] = "api.telegram.org";
-const char getIdresource[] = "/bot1383965879:AAEII9ZEdPWYiAyH57JRseQVjMYvZmDBcKM/getUpdates";
-const char sendMsgresource[] = "/bot1383965879:AAEII9ZEdPWYiAyH57JRseQVjMYvZmDBcKM/sendMessage";
+const char getIdresource[] = "/bot<tele token>/getUpdates";
+const char sendMsgresource[] = "/bot<tele-token>/sendMessage";
 const int  port = 80;
 
 #include <TinyGsmClient.h>
