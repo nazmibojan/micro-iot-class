@@ -6,7 +6,7 @@
 #include <SPI.h>
 #include <DHT.h>
 
-#define DHT_PIN 23
+#define DHT_PIN 5
 #define DHT_TYPE DHT11
 
 #define PUBLISH_INTERVAL 10000
@@ -18,15 +18,15 @@ String humidity;
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
-String ssid = "ipop";
-String pass = "iyanfopi";
-String mqttServer = "hairdresser.cloudmqtt.com";
-String mqttUser = "nglettrq";
-String mqttPwd = "RVPcR2AQJEV1";
+String ssid = "Nuclear Physics Lab";
+String pass = "einstein";
+String mqttServer = "broker.hivemq.com";
+String mqttUser = "";
+String mqttPwd = "";
 String deviceId = "Home_Gateway_1";
 String pubTopic = String(deviceId + "/sensor_data");
 String subTopic = String(deviceId + "/led_status");
-String mqttPort = "18848";
+String mqttPort = "1883";
 
 WiFiClient ESPClient;
 PubSubClient ESPMqtt(ESPClient);

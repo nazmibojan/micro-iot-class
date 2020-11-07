@@ -9,6 +9,10 @@ int bh1750Read(int address);
 
 byte buff[2];
 unsigned short lux = 0;
+int x = 0;
+float luas1, luas2, luas3;
+
+float hitungVolumeTabung(int radian, int height);
 
 void setup() {
   Wire.begin();
@@ -25,6 +29,11 @@ void loop() {
     Serial.println("lux");
   }
   delay(1000);
+
+  function2();
+
+  luas1 = hitungVolumeTabung(4, 5);
+  luas2 = hitungVolumeTabung(4, 6);
 }
 
 int bh1750Read(int address) //
@@ -49,3 +58,21 @@ void bh1750Request(int address) {
   Wire.endTransmission();
 }
 
+
+void function1(int x, int y) {
+
+}
+
+void function2() {
+  x = 1;
+}
+
+String hitungVolumeTabung(int radian, int height) {
+  float pi = 3.14;
+  float luasFungsi;
+  String output;
+
+  luasFungsi = pi * radian * radian * height;
+
+  return luasFungsi;
+}

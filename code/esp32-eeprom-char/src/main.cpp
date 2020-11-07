@@ -3,6 +3,14 @@
 
 #define EEPROM_SIZE 32
 
+#define SSID_ADDRESS 0
+#define SSID_SIZE 10
+#define PASS_ADDRESS 10
+#define PASS_SIZE 10
+
+char ssid[SSID_SIZE];
+char password[PASS_SIZE];
+
 char writeChar[32] = "Nusantech Academy";
 int len = 0;
 
@@ -30,6 +38,12 @@ void loop() {
     Serial.print(readChar);
   }
   Serial.println();
+
+  // Write SSID
+  memset(ssid, 0, SSID_SIZE);
+  memcpy(ssid, "wifi", 4);
+
+
   delay(10000);
 }
 

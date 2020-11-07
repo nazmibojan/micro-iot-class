@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#define POT_PIN 4
+#define POT_PIN 5
 
 int adcValue = 0;
 
