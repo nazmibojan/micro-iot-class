@@ -9,8 +9,8 @@
 #define DHT_PIN 23
 #define DHT_TYPE DHT11
 
-const char *ssid = "ipop";
-const char *password = "iyanfopi";
+const char *ssid = "******";
+const char *password = "***********";
 const char *mac = "7303568894610265";
 char message[1024];
 float temperature = 0, humidity = 0;

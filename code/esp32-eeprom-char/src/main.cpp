@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <EEPROM.h>
+#inclusw <HTTPUpdate.h>
 
 #define EEPROM_SIZE 32
 

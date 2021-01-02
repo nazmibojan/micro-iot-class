@@ -5,6 +5,7 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <DHT.h>
+#include <HTTPUpdate.h>
 
 #define DHT_PIN 5
 #define DHT_TYPE DHT11
