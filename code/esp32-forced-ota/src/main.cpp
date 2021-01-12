@@ -11,10 +11,9 @@
 
 #define FIRST_FIRMWARE_FLASH
 
-#define TRIGGER1_PIN 15
-#define ECHO1_PIN 14
+#define TRIGGER1_PIN 23
+#define ECHO1_PIN 22
 #define LED_PIN 2
-#define VIBRATE_PIN 22
 
 #define PUBLISH_INTERVAL 20000
 #define NTP_UPDATE_INTERVAL 60000
@@ -64,11 +63,8 @@ void setup() {
   pinMode(TRIGGER1_PIN, OUTPUT);
   pinMode(ECHO1_PIN, INPUT);
   pinMode(LED_PIN, OUTPUT);
-  pinMode(VIBRATE_PIN, OUTPUT);
   mySerial.begin(9600);
   delay(1000);
-
-  digitalWrite(VIBRATE_PIN, LOW);
 
 #ifdef FIRST_FIRMWARE_FLASH
   deviceData.begin("DeviceData", false);
