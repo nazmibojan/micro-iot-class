@@ -8,10 +8,16 @@ void setup() {
 
 void loop() {
     // put your main code here, to run repeatedly:
-    // Serial.println("Hello World");
-    ESP_LOGI("TEST", "HADIR");
+    // Serial.println("Hello World!");
+    ESP_LOGI("INFO", "Info Microcontroller");
     delay(3000);
-    ESP_LOGE("ERR", "ERROR");
+    ESP_LOGE("ERROR", "Error Microcontroller");
+    delay(3000);
+    ESP_LOGV("VERBOSE", "Verbose Microcontroller");
+    delay(3000);
+    ESP_LOGW("WARNING", "WARNING Microcontroller");
+    delay(3000);
+    ESP_LOGD("DEBUG", "DEBUG Microcontroller");
     delay(3000);
 }
 
