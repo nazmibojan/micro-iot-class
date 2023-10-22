@@ -12,6 +12,6 @@ void setup() {
 void loop() {
     // put your main code here, to run repeatedly:
     adcValue = analogRead(POT_PIN);
-    Serial.println(adcValue);
+    ESP_LOGI("ADC", "ADC value: %d", adcValue);
     delay(5000);
 }
