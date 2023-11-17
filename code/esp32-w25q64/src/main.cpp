@@ -16,34 +16,33 @@ void chipInit();
 void chipGetId();
 
 void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-  chipInit();
-  chipGetId();
+    // put your setup code here, to run once:
+    Serial.begin(9600);
+    chipInit();
+    chipGetId();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+    // put your main code here, to run repeatedly:
 }
 
 void chipInit() {
-  pinMode(CS_PIN, OUTPUT);
-  SPI.begin(SCK_PIN, MISO_PIN, MOSI_PIN, CS_PIN);
-  digitalWrite(CS_PIN, HIGH);
+    pinMode(CS_PIN, OUTPUT);
+    SPI.begin(SCK_PIN, MISO_PIN, MOSI_PIN, CS_PIN);
+    digitalWrite(CS_PIN, HIGH);
 }
 
 void chipGetId() {
-  // Get chip ID
-  digitalWrite(CS_PIN, LOW);
-  SPI.transfer(CHIP_ID);
-  for (int i = 0; i < LEN_ID; i++) {
-    chipId[i] = SPI.transfer(0);
-  }
-  digitalWrite(CS_PIN, HIGH);
-  Serial.print("Chip ID in bytes: ");
-  for (int i = 0; i < LEN_ID; i++) {
-    Serial.print(chipId[i], HEX);
-    Serial.print(" ");
-  }
-  Serial.println();
+    // Get chip ID
+    digitalWrite(CS_PIN, LOW);
+    SPI.transfer(CHIP_ID);
+    for (int i = 0; i < LEN_ID; i++) {
+        chipId[i] = SPI.transfer(0);
+    }
+    digitalWrite(CS_PIN, HIGH);
+    ESP_LOGI("W25Q64", "Chip ID in bytes: ");
+    for (int i = 0; i < LEN_ID; i++) {
+        ESP_LOGI("W25Q64", "%X ", chipId[i]);
+    }
+    Serial.println();
 }

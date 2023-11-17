@@ -1,10 +1,12 @@
 #include <Arduino.h>
 #include <Preferences.h>
 
+// #define STRING_DEMO_ENABLE
+
 #define STORAGE_NAME "storage"
 #define LED_STATUS_KEY "led"
 #define SSID_KEY "ssid"
-#define BUTTON_PIN 21
+#define BUTTON_PIN 17
 
 bool ledStatus = LOW;
 bool changeLedStatus = false;
@@ -34,11 +36,13 @@ void setup() {
     ledStatus = storage.getBool(LED_STATUS_KEY);
     digitalWrite(BUILTIN_LED, ledStatus);
 
+#ifdef STRING_DEMO_ENABLE
     // Print current SSID
     ssid = storage.getString(SSID_KEY);
     ESP_LOGI("SETUP", "SSID name: %s", ssid);
     ssid.clear();
     storage.end();
+#endif
 }
 
 void loop() {
@@ -56,6 +60,7 @@ void loop() {
         storage.end();
     }
 
+#ifdef STRING_DEMO_ENABLE
     // put string data
     if (Serial.available()) {
         ssid[dataIndex] = Serial.read();
@@ -69,4 +74,5 @@ void loop() {
             storage.end();
         }
     }
+#endif
 }
