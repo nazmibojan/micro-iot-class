@@ -16,13 +16,13 @@ unsigned short lux = 0;
 void setup() {
     Serial.begin(9600);
     Wire.begin();
-    bh1750Request(BH175O_ADDRESS);
+    // bh1750Request(BH175O_ADDRESS);
     ESP_LOGI("SETUP", "Start Reading Light Sensor..");
 }
 
 void loop() {
-    // bh1750Request(BH175O_ADDRESS);
-    // delay(200);
+    bh1750Request(BH175O_ADDRESS);
+    delay(200);
 
     if (bh1750Read(BH175O_ADDRESS) == BHI1750_DATALEN) {
         lux = (((unsigned short)buff[0] << 8) | (unsigned short)buff[1]) / 1.2;
