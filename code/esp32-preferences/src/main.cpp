@@ -5,7 +5,7 @@
 
 #define STORAGE_NAME "storage"
 #define LED_STATUS_KEY "led"
-#define SSID_KEY "ssid"
+// #define SSID_KEY "ssid"
 #define BUTTON_PIN 17
 
 bool ledStatus = LOW;
@@ -13,7 +13,7 @@ bool changeLedStatus = false;
 portMUX_TYPE gpioIntMux = portMUX_INITIALIZER_UNLOCKED;
 
 Preferences storage;
-String ssid;
+// String ssid;
 uint32_t dataIndex = 0;
 
 void IRAM_ATTR gpioISR() {
@@ -34,6 +34,7 @@ void setup() {
     storage.begin(STORAGE_NAME);
     delay(100);
     ledStatus = storage.getBool(LED_STATUS_KEY);
+    storage.end();
     digitalWrite(BUILTIN_LED, ledStatus);
 
 #ifdef STRING_DEMO_ENABLE
