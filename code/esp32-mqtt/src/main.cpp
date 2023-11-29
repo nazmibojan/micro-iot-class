@@ -7,7 +7,7 @@
 #include <DHT.h>
 #include <HTTPUpdate.h>
 
-#define DHT_PIN 5
+#define DHT_PIN 4
 #define DHT_TYPE DHT11
 
 #define PUBLISH_INTERVAL 10000
@@ -19,8 +19,8 @@ String humidity;
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
-String ssid = "Nuclear Physics Lab";
-String pass = "einstein";
+String ssid = "NZM IoT Lab";
+String pass = "Heisenberg1932";
 String mqttServer = "broker.hivemq.com";
 String mqttUser = "";
 String mqttPwd = "";
@@ -65,12 +65,13 @@ void loop() {
 
   if (millis() - lastPublish > PUBLISH_INTERVAL) {
     updateDhtData();
-    Serial.print("Get sensor Data: ");
-    // Temp and Humidity
-    Serial.print(" Temperature = ");
-    Serial.print(tempFloat);
-    Serial.print(" Humidity = ");
-    Serial.println(humidFloat);
+    // Serial.print("Get sensor Data: ");
+    // // Temp and Humidity
+    // Serial.print(" Temperature = ");
+    // Serial.print(tempFloat);
+    // Serial.print(" Humidity = ");
+    // Serial.println(humidFloat);
+    ESP_LOGI("SENSOR", "Get sensor data -> Temperature = %.2f C & Humidity = %.2f %", tempFloat, humidFloat);
     publishMessage();
 
     lastPublish = millis();
@@ -90,16 +91,14 @@ void connectToNetwork() {
 
 void connectToMqtt() {
   while (!ESPMqtt.connected()) {
-    Serial.println("ESP > Connecting to MQTT...");
+    ESP_LOGI("MQTT", "ESP > Connecting to MQTT...");
 
-    if (ESPMqtt.connect("ESP32Client", mqttUser.c_str(), mqttPwd.c_str())) {
-      Serial.println("Connected to Server");
+    if (ESPMqtt.connect("ESP32Client-Nazmi", mqttUser.c_str(), mqttPwd.c_str())) {
+      ESP_LOGI("MQTT", "Connected to Server");
       // subscribe to the topic
       ESPMqtt.subscribe(subTopic.c_str());
     } else {
-      Serial.print("ERROR > failed with state");
-      Serial.print(ESPMqtt.state());
-      Serial.print("\r\n");
+      ESP_LOGI("MQTT", "ERROR > failed with state %d", ESPMqtt.state());
       delay(2000);
     }
   }
@@ -120,7 +119,7 @@ void publishMessage() {
 
   serializeJson(doc, msgToSend);
 
-  Serial.println(msgToSend);
+  ESP_LOGI("MQTT", "Message to publish: %s", msgToSend);
   ESPMqtt.publish(pubTopic.c_str(), msgToSend);
 }
 
@@ -135,9 +134,7 @@ void updateDhtData() {
 void mqttCallback(char *topic, byte *payload, long length) {
   char msg[256];
 
-  Serial.print("Message arrived [");
-  Serial.print(subTopic);
-  Serial.print("] ");
+  ESP_LOGI("MQTT", "Message arrived [%s]", subTopic);
   for (int i = 0; i < length; i++) {
     msg[i] = (char)payload[i];
   }
@@ -154,12 +151,12 @@ void do_actions(const char *message) {
   const char *ledStatus = doc["ledStatus"]; 
 
   if (String(ledStatus) == "ON") {
-    Serial.println("TURN ON LED");
+    ESP_LOGI("LED", "TURN ON LED");
     digitalWrite(BUILTIN_LED, HIGH);
   } else if (String(ledStatus) == "OFF") {
-    Serial.println("TURN Off LED");
+    ESP_LOGI("LED", "TURN Off LED");
     digitalWrite(BUILTIN_LED, LOW);
   } else {
-    Serial.println("Could not recognize LED Status");
+    ESP_LOGI("LED", "Could not recognize LED Status");
   }
 }

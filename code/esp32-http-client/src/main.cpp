@@ -3,8 +3,8 @@
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
 
-const char *ssid = "#########";
-const char *password = "###########";
+const char *ssid = "NZM IoT Lab";
+const char *password = "Heisenberg1932";
 const size_t capacity = JSON_OBJECT_SIZE(2);
 char message[1024];
 
@@ -31,19 +31,19 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  if (WiFi.status() == WL_CONNECTED) {
-    // doc["chat_id"] = 153457830;
-    // doc["text"] = "Hello World";
-    // serializeJson(doc, message);
-    // teleSendMessage(message);
-  } else {
-    connectToNetwork();
-  }
+  // // put your main code here, to run repeatedly:
+  // if (WiFi.status() == WL_CONNECTED) {
+  //   // doc["chat_id"] = 153457830;
+  //   // doc["text"] = "Hello World";
+  //   // serializeJson(doc, message);
+  //   // teleSendMessage(message);
+  // } else {
+  //   connectToNetwork();
+  // }
 
-  delay(10000);
+  // delay(10000);
 
-  // Deserialize JSON
+  // // Deserialize JSON
 }
 
 void connectToNetwork() {
@@ -51,45 +51,42 @@ void connectToNetwork() {
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    Serial.println("Establishing connection to WiFi..");
+    ESP_LOGI("WIFI", "Establishing connection to WiFi..");
   }
 
-  Serial.println("Connected to network");
+  ESP_LOGI("WIFI", "Connected to network");
 }
 
 void telePrintChatId() {
-  http.begin("https://api.telegram.org/"
-             "bot<BOT TOKEN>/getUpdates");
+  http.begin("https://api.telegram.org/bot1383965879:AAEII9ZEdPWYiAyH57JRseQVjMYvZmDBcKM/getUpdates");
   int httpResponseCode = http.GET();
 
   if (httpResponseCode > 0) {
     String response = http.getString(); // Get the response to the request
 
-    Serial.println(httpResponseCode); // Print return code
-    Serial.println(response);         // Print request answer
+    ESP_LOGI("TELE", "HTTP Response code: %d", httpResponseCode); // Print return code
+    ESP_LOGI("TELE", "Response: %s", response.c_str());         // Print request answer
   } else {
-    Serial.print("Error on sending POST: ");
-    Serial.println(httpResponseCode);
+    ESP_LOGI("TELE", "Error on sending POST: %d", httpResponseCode);
   }
 
   http.end();
 }
 
 void teleSendMessage(String payload) {
-  Serial.println(payload);
+  ESP_LOGI("TELE", "HTTP Payload: %s", payload.c_str());
   http.begin("https://api.telegram.org/"
-             "bot<BOT TOKEN>/sendMessage");
+             "bot1383965879:AAEII9ZEdPWYiAyH57JRseQVjMYvZmDBcKM/sendMessage");
   http.addHeader("Content-Type", "application/json");
   int httpResponseCode = http.POST(payload);
 
   if (httpResponseCode > 0) {
     String response = http.getString(); // Get the response to the request
 
-    Serial.println(httpResponseCode); // Print return code
-    Serial.println(response);         // Print request answer
+    ESP_LOGI("TELE", "HTTP Response code: %d", httpResponseCode); // Print return code
+    ESP_LOGI("TELE", "Response: %s", response.c_str());         // Print request answer
   } else {
-    Serial.print("Error on sending POST: ");
-    Serial.println(httpResponseCode);
+    ESP_LOGI("TELE", "Error on sending POST: %d", httpResponseCode);
   }
 
   http.end();

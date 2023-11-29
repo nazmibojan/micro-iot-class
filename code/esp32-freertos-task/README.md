@@ -1,0 +1,1 @@
+This code is run and tested in PlatformIO using Arduino framework. There are two task that create in the same core. First task will sent uart data frequently and the other task is created for blinking the LED.
