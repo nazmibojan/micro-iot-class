@@ -129,6 +129,7 @@
  /home/nazmi/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/spi_flash/include/esp_spi_flash.h \
  /home/nazmi/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/spi_flash/include/esp_spi_flash_counters.h \
  /home/nazmi/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_hw_support/include/soc/esp32/spiram.h \
+ .pio/libdeps/esp32doit-devkit-v1/DHT\ sensor\ library/DHT.h \
  /home/nazmi/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFi.h \
  /home/nazmi/.platformio/packages/framework-arduinoespressif32/cores/esp32/Print.h \
  /home/nazmi/.platformio/packages/framework-arduinoespressif32/cores/esp32/IPv6Address.h \

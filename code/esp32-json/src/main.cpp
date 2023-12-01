@@ -20,16 +20,11 @@ void setup() {
   const char *humid = doc["humid"];   // "54.0"
   const char *mac = doc["mac"];       // "204637284"
 
-  Serial.print("Device ID: ");
-  Serial.println(device_id);
-  Serial.print("Status: ");
-  Serial.println(status);
-  Serial.print("Suhu: ");
-  Serial.println(temp);
-  Serial.print("Kelembaban: ");
-  Serial.println(humid);
-  Serial.print("Mac: ");
-  Serial.println(mac);
+  ESP_LOGI("SETUP", "Device ID: %d", device_id);
+  ESP_LOGI("SETUP", "Status: %s", status);
+  ESP_LOGI("SETUP", "Suhu: %s", temp);
+  ESP_LOGI("SETUP", "Kelembaban: %s", humid);
+  ESP_LOGI("SETUP", "Mac: %s", mac);
 
   // Serialize JSON
   doc["device_id"] = 2;
@@ -40,7 +35,8 @@ void setup() {
 
   String serializeOutput;
   serializeJson(doc, serializeOutput);
-  Serial.println(serializeOutput);
+  
+  ESP_LOGI("SETUP", "Output JSON: %s", serializeOutput.c_str());
 }
 
 void loop() {

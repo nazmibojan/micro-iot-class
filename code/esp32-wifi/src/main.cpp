@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
-const char *ssid = "NZM IoT Lab";
-const char *password = "Heisenberg1932";
+const char *ssid = "Praktisi AP";
+const char *password = "semangka";
 
 String translateEncryptionType(wifi_auth_mode_t encryptionType);
 void scanNetworks();
@@ -12,10 +12,8 @@ void setup() {
     Serial.begin(9600);
 
     scanNetworks();
-    connectToNetwork();
 
-    // Serial.println(WiFi.macAddress());
-    // Serial.println(WiFi.localIP());
+    connectToNetwork();
 
     // Get MAC Address
     uint8_t mac[6];
@@ -52,12 +50,10 @@ String translateEncryptionType(wifi_auth_mode_t encryptionType) {
 void scanNetworks() {
     int numberOfNetworks = WiFi.scanNetworks();
 
-    // Serial.print("==== Number of networks found ====");
-    // Serial.println(numberOfNetworks);
     ESP_LOGI("LOOP", "Number of networks found: %d", numberOfNetworks);
 
     for (int i = 0; i < numberOfNetworks; i++) {
-        ESP_LOGI("LOOP", "Network name: %s", WiFi.SSID(i));
+        ESP_LOGI("LOOP", "Network name: %s", WiFi.SSID(i).c_str());
         ESP_LOGI("LOOP", "Signal strength: %d", WiFi.RSSI(i));
         ESP_LOGI("LOOP", "Encryption type: %s", String(translateEncryptionType(WiFi.encryptionType(i))));
         ESP_LOGI("LOOP", "=======================");
@@ -69,8 +65,8 @@ void connectToNetwork() {
 
     while (WiFi.status() != WL_CONNECTED) {
         delay(1000);
-        Serial.println("Establishing connection to WiFi..");
+        ESP_LOGI("WIFI", "Establishing connection to WiFi..");
     }
 
-    Serial.println("Connected to network");
+    ESP_LOGI("WIFI", "Connected to network");
 }

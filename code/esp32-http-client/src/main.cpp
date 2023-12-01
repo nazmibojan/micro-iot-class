@@ -3,8 +3,8 @@
 #include <ArduinoJson.h>
 #include <HTTPClient.h>
 
-const char *ssid = "NZM IoT Lab";
-const char *password = "Heisenberg1932";
+const char *ssid = "Praktisi AP";
+const char *password = "semangka";
 const size_t capacity = JSON_OBJECT_SIZE(2);
 char message[1024];
 
@@ -24,26 +24,14 @@ void setup() {
 
   telePrintChatId();
   delay(3000);
-  doc["chat_id"] = 153457830;
-  doc["text"] = "Hello World";
-  serializeJson(doc, message);
-  teleSendMessage(message);
+
+  // doc["chat_id"] = 153457830;
+  // doc["text"] = "Hello World!";
+  // serializeJson(doc, message);
+  // teleSendMessage(message);
 }
 
 void loop() {
-  // // put your main code here, to run repeatedly:
-  // if (WiFi.status() == WL_CONNECTED) {
-  //   // doc["chat_id"] = 153457830;
-  //   // doc["text"] = "Hello World";
-  //   // serializeJson(doc, message);
-  //   // teleSendMessage(message);
-  // } else {
-  //   connectToNetwork();
-  // }
-
-  // delay(10000);
-
-  // // Deserialize JSON
 }
 
 void connectToNetwork() {

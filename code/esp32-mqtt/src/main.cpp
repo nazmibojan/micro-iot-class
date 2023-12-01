@@ -65,12 +65,6 @@ void loop() {
 
   if (millis() - lastPublish > PUBLISH_INTERVAL) {
     updateDhtData();
-    // Serial.print("Get sensor Data: ");
-    // // Temp and Humidity
-    // Serial.print(" Temperature = ");
-    // Serial.print(tempFloat);
-    // Serial.print(" Humidity = ");
-    // Serial.println(humidFloat);
     ESP_LOGI("SENSOR", "Get sensor data -> Temperature = %.2f C & Humidity = %.2f %", tempFloat, humidFloat);
     publishMessage();
 
