@@ -1,110 +1,161 @@
 #include <Arduino.h>
+#include <ArduinoJson.h>
+#include <DHT.h>
+#include <PubSubClient.h>
 #include <WiFi.h>
 
-#define ALL_EVENT_BITS 0xFF
-#define WIFI_CONNECTION_BIT (0x01UL)
-#define QUEUE_SIZE 15
+#define DHT_PIN 4
+#define DHT_TYPE DHT11
 
-const char *ssid = "CONNEXT-AXIATA";
-const char *pass = "4xiatadigitallabs18";
+#define PUBLISH_INTERVAL 1000
+
+const char *ssid = "NZM IoT Lab";
+const char *pass = "Heisenberg1932";
 int lastRequest = 0;
+float tempFloat, humidFloat;
 
-TaskHandle_t uartTaskHandle;
-TaskHandle_t ledTaskHandle;
-EventGroupHandle_t sampleGroup;
-QueueHandle_t messageQueue;
+TaskHandle_t sensorHandle;
+TaskHandle_t mqttTaskHandle;
 
-void setupWifi();
-void uartTask(void *parameter);
-void ledTask(void *parameter);
+SemaphoreHandle_t xSemaphoreSensor = NULL;
+
+DHT dht(DHT_PIN, DHT_TYPE);
+
+String mqttServer = "broker.hivemq.com";
+String mqttUser = "";
+String mqttPwd = "";
+String deviceId = "Home_Gateway_1";
+String pubTopic = String(deviceId + "/sensor_data");
+String mqttPort = "1883";
+
+WiFiClient ESPClient;
+PubSubClient ESPMqtt(ESPClient);
+
+void sensorTask(void *parameter);
+void mqttTask(void *parameter);
+boolean updateDhtData();
+void connectToMqtt();
+void connectToNetwork();
+void publishMessage();
 
 void setup() {
-  // put your setup code here, to run once:
-  pinMode(BUILTIN_LED, OUTPUT);
-  Serial.begin(9600);
-  vTaskDelay(1000);
+    // put your setup code here, to run once:
+    pinMode(BUILTIN_LED, OUTPUT);
+    Serial.begin(9600);
+    vTaskDelay(1000);
 
-  // Create event group
-  sampleGroup = xEventGroupCreate();
-  configASSERT(sampleGroup);
+    xSemaphoreSensor = xSemaphoreCreateMutex();
 
-  // Create message queue
-  messageQueue = xQueueCreate(QUEUE_SIZE, sizeof(char));
-  if (messageQueue == NULL) {
-    ESP_LOGI("SETUP", "Error creating the queue");
-  }
+    connectToNetwork();
 
-  // Create RTOS task
-  xTaskCreatePinnedToCore(uartTask, "UART Task", 2048, NULL, 1, &uartTaskHandle,
-                          0);
-  xTaskCreatePinnedToCore(ledTask, "LED Task", 2048, NULL, 2, &ledTaskHandle,
-                          0);
-
-  setupWifi();
+    // Create RTOS task
+    xTaskCreate(sensorTask, "Sensor Task", 2048, NULL, 1, &sensorHandle);
+    xTaskCreate(mqttTask, "MQTT Task", 2048, NULL, 2, &mqttTaskHandle);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  if (millis() - lastRequest > 10000) {
-    if (WiFi.status() != WL_CONNECTED) {
-      setupWifi();
+}
+
+void sensorTask(void *parameter) {
+
+    for (;;) {
+        xSemaphoreTake(xSemaphoreSensor, portMAX_DELAY);
+        while (!updateDhtData()) {
+            ESP_LOGI("SENSOR", "Sensor error! Retry in 3 seconds");
+            vTaskDelay(3000);
+        }
+        xSemaphoreGive(xSemaphoreSensor);
+
+        vTaskDelay(PUBLISH_INTERVAL);
+    }
+}
+
+void mqttTask(void *parameter) {
+    unsigned long lastPublish = 0;
+
+    ESPMqtt.setServer(mqttServer.c_str(), mqttPort.toInt());
+
+    for (;;) {
+        if (WiFi.status() != WL_CONNECTED) {
+            connectToNetwork();
+        }
+
+        if (WiFi.status() == WL_CONNECTED && !ESPMqtt.connected()) {
+            connectToMqtt();
+        }
+
+        if (millis() - lastPublish > PUBLISH_INTERVAL) {
+            xSemaphoreTake(xSemaphoreSensor, portMAX_DELAY);
+            ESP_LOGI("SENSOR", "Get sensor data -> Temperature = %.2f C & Humidity = %.2f %", tempFloat, humidFloat);
+            // publishMessage();
+            tempFloat = 0;
+            humidFloat = 0;
+            xSemaphoreGive(xSemaphoreSensor);
+
+            lastPublish = millis();
+        }
+
+        vTaskDelay(200);
+
+        ESPMqtt.loop();
+    }
+}
+
+boolean updateDhtData() {
+
+    // TO DO: Data Verification
+    // Get temperature and humidity data
+    tempFloat = dht.readTemperature();
+    humidFloat = dht.readHumidity();
+
+    if (tempFloat > 0 && humidFloat > 0) {
+        return true;
     } else {
-      ESP_LOGI("WIFI", "WiFi is already connected...");
+        return false;
     }
-
-    lastRequest = millis();
-  }
 }
 
-void uartTask(void *parameter) {
-  EventBits_t clientBits;
+void connectToNetwork() {
+    vTaskDelay(10);
+    // We start by connecting to a WiFi network
+    ESP_LOGI("WIFI", "Connecting to %s", ssid);
 
-  for (;;) {
-    clientBits = xEventGroupWaitBits(sampleGroup, ALL_EVENT_BITS, pdTRUE,
-                                     pdFALSE, 1000 / portTICK_PERIOD_MS);
-    clientBits &= WIFI_CONNECTION_BIT;
+    WiFi.begin(ssid, pass);
 
-    if (clientBits != 0) {
-      char deviceIP[QUEUE_SIZE] = {0};
-      // Read message queue
-      for (int readIndex = 0; readIndex < QUEUE_SIZE; readIndex++) {
-        xQueueReceive(messageQueue, deviceIP, portMAX_DELAY);
-      }
-
-      ESP_LOGI("WIFI", "WiFi connected");
+    while (WiFi.status() != WL_CONNECTED) {
+        vTaskDelay(500);
+        ESP_LOGI("WIFI", ".");
     }
-  }
 }
 
-void ledTask(void *parameter) {
-  for (;;) {
-    if (WiFi.status() == WL_CONNECTED) {
-      digitalWrite(BUILTIN_LED, HIGH);
-      vTaskDelay(1000);
-      digitalWrite(BUILTIN_LED, LOW);
-      vTaskDelay(1000);
-    } else {
-      digitalWrite(BUILTIN_LED, LOW);
+void connectToMqtt() {
+    while (!ESPMqtt.connected()) {
+        ESP_LOGI("MQTT", "ESP > Connecting to MQTT...");
+
+        if (ESPMqtt.connect("ESP32Client-Nazmi", mqttUser.c_str(), mqttPwd.c_str())) {
+            ESP_LOGI("MQTT", "Connected to Server");
+        } else {
+            ESP_LOGI("MQTT", "ERROR > failed with state %d", ESPMqtt.state());
+            delay(2000);
+        }
     }
-  }
 }
 
-void setupWifi() {
-  vTaskDelay(10);
-  // We start by connecting to a WiFi network
-  ESP_LOGI("WIFI", "Connecting to %s", ssid);
+void publishMessage() {
+    char msgToSend[1024] = {0};
+    const size_t capacity = JSON_OBJECT_SIZE(4);
+    DynamicJsonDocument doc(capacity);
 
-  WiFi.begin(ssid, pass);
+    String temperature = String(tempFloat);
+    String humidity = String(humidFloat);
 
-  while (WiFi.status() != WL_CONNECTED) {
-    vTaskDelay(500);
-    ESP_LOGI("WIFI", ".");
-  }
+    doc["eventName"] = "sensorStatus";
+    doc["status"] = "none";
+    doc["temp"] = temperature.c_str();
+    doc["humid"] = humidity.c_str();
 
-  String Esp32Ip = String(WiFi.localIP());
+    serializeJson(doc, msgToSend);
 
-  for (int insertIndex = 0; insertIndex < QUEUE_SIZE; insertIndex++) {
-    xQueueSend(messageQueue, &Esp32Ip.c_str()[insertIndex], portMAX_DELAY);
-  }
-  xEventGroupSetBits(sampleGroup, WIFI_CONNECTION_BIT);
+    ESP_LOGI("MQTT", "Message to publish: %s", msgToSend);
+    ESPMqtt.publish(pubTopic.c_str(), msgToSend);
 }
