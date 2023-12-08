@@ -1,4 +1,4 @@
-// #define USE_BH1750_LIB
+#define USE_BH1750_LIB
 
 #ifndef USE_BH1750_LIB
 #include <Arduino.h>
@@ -16,13 +16,13 @@ unsigned short lux = 0;
 void setup() {
     Serial.begin(9600);
     Wire.begin();
-    // bh1750Request(BH175O_ADDRESS);
+    bh1750Request(BH175O_ADDRESS);
     ESP_LOGI("SETUP", "Start Reading Light Sensor..");
 }
 
 void loop() {
-    bh1750Request(BH175O_ADDRESS);
-    delay(200);
+    // bh1750Request(BH175O_ADDRESS);
+    // delay(200);
 
     if (bh1750Read(BH175O_ADDRESS) == BHI1750_DATALEN) {
         lux = (((unsigned short)buff[0] << 8) | (unsigned short)buff[1]) / 1.2;
@@ -47,7 +47,7 @@ int bh1750Read(int address)  //
 
 void bh1750Request(int address) {
     Wire.beginTransmission(address);
-    Wire.write(0x20);  // 1lx resolution 120ms
+    Wire.write(0x10);  // 1lx resolution 120ms
 
     if (Wire.endTransmission() == 0) {
         ESP_LOGI("BH1750", "Success end transmission");

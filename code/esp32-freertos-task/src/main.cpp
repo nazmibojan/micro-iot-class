@@ -15,6 +15,7 @@ TaskHandle_t dht11TaskHandle;
 TaskHandle_t ledTaskHandle;
 
 void setupWifi();
+
 void dht11Task(void *parameter);
 void ledTask(void *parameter);
 
@@ -27,6 +28,7 @@ void setup() {
     setupWifi();
 
     ESP_LOGI("SETUP", "Create freertos task!");
+
     // Create RTOS task
     xTaskCreate(dht11Task, "DHT11 Task", 2048, NULL, 1, &dht11TaskHandle);
     xTaskCreate(ledTask, "LED Task", 2048, NULL, 2, &ledTaskHandle);
