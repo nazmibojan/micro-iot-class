@@ -17,7 +17,7 @@ float tempFloat, humidFloat;
 TaskHandle_t sensorHandle;
 TaskHandle_t mqttTaskHandle;
 
-SemaphoreHandle_t xSemaphoreSensor = NULL;
+SemaphoreHandle_t xMutexSensor = NULL;
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
@@ -44,7 +44,7 @@ void setup() {
     Serial.begin(9600);
     vTaskDelay(1000);
 
-    xSemaphoreSensor = xSemaphoreCreateMutex();
+    xMutexSensor = xSemaphoreCreateMutex();
 
     connectToNetwork();
 
@@ -59,12 +59,12 @@ void loop() {
 void sensorTask(void *parameter) {
 
     for (;;) {
-        xSemaphoreTake(xSemaphoreSensor, portMAX_DELAY);
+        xSemaphoreTake(xMutexSensor, portMAX_DELAY);
         while (!updateDhtData()) {
             ESP_LOGI("SENSOR", "Sensor error! Retry in 3 seconds");
             vTaskDelay(3000);
         }
-        xSemaphoreGive(xSemaphoreSensor);
+        xSemaphoreGive(xMutexSensor);
 
         vTaskDelay(PUBLISH_INTERVAL);
     }
@@ -85,12 +85,12 @@ void mqttTask(void *parameter) {
         }
 
         if (millis() - lastPublish > PUBLISH_INTERVAL) {
-            xSemaphoreTake(xSemaphoreSensor, portMAX_DELAY);
+            xSemaphoreTake(xMutexSensor, portMAX_DELAY);
             ESP_LOGI("SENSOR", "Get sensor data -> Temperature = %.2f C & Humidity = %.2f %", tempFloat, humidFloat);
             // publishMessage();
             tempFloat = 0;
             humidFloat = 0;
-            xSemaphoreGive(xSemaphoreSensor);
+            xSemaphoreGive(xMutexSensor);
 
             lastPublish = millis();
         }

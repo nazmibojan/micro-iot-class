@@ -1,4 +1,4 @@
-// #define USE_BH1750_LIB
+#define USE_BH1750_LIB
 
 #ifndef USE_BH1750_LIB
 #include <Arduino.h>
