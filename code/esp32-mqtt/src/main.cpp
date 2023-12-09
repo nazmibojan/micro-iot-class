@@ -1,3 +1,5 @@
+// Message received format: {"deviceId": "Home_Gateway_1", "ledStatus": "ON"}
+
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <DHT.h>

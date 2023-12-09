@@ -25,7 +25,7 @@ String mqttServer = "broker.hivemq.com";
 String mqttUser = "";
 String mqttPwd = "";
 String deviceId = "Home_Gateway_1";
-String pubTopic = String(deviceId + "/sensor_data");
+String pubTopic = String(deviceId + "/sensor_data_nzm");
 String mqttPort = "1883";
 
 WiFiClient ESPClient;
@@ -33,6 +33,7 @@ PubSubClient ESPMqtt(ESPClient);
 
 void sensorTask(void *parameter);
 void mqttTask(void *parameter);
+
 boolean updateDhtData();
 void connectToMqtt();
 void connectToNetwork();
@@ -57,7 +58,6 @@ void loop() {
 }
 
 void sensorTask(void *parameter) {
-
     for (;;) {
         xSemaphoreTake(xMutexSensor, portMAX_DELAY);
         while (!updateDhtData()) {
@@ -132,7 +132,7 @@ void connectToMqtt() {
     while (!ESPMqtt.connected()) {
         ESP_LOGI("MQTT", "ESP > Connecting to MQTT...");
 
-        if (ESPMqtt.connect("ESP32Client-Nazmi", mqttUser.c_str(), mqttPwd.c_str())) {
+        if (ESPMqtt.connect("ESP-NazmiFebrian", mqttUser.c_str(), mqttPwd.c_str())) {
             ESP_LOGI("MQTT", "Connected to Server");
         } else {
             ESP_LOGI("MQTT", "ERROR > failed with state %d", ESPMqtt.state());
