@@ -25,8 +25,8 @@ String mqttPwd = "";
 String mqttPort = "1883";
 
 String deviceId = "Home_Gateway_1";
-String pubTopic = String(deviceId + "/sensor_data_nazmi");
-String subTopic = String(deviceId + "/led_status_nazmi");
+String pubTopic = String(deviceId + "/sensor_data_nzm");
+String subTopic = String(deviceId + "/led_status_nzm");
 
 WiFiClient ESPClient;
 PubSubClient ESPMqtt(ESPClient);
@@ -86,7 +86,7 @@ void connectToMqtt() {
     while (!ESPMqtt.connected()) {
         ESP_LOGI("MQTT", "ESP > Connecting to MQTT...");
 
-        if (ESPMqtt.connect("ESP32Client-NazmiFeb", mqttUser.c_str(), mqttPwd.c_str())) {
+        if (ESPMqtt.connect("ESP32-NazmiFebrian", mqttUser.c_str(), mqttPwd.c_str())) {
             ESP_LOGI("MQTT", "Connected to Server");
             // subscribe to the topic
             ESPMqtt.subscribe(subTopic.c_str());
@@ -136,13 +136,13 @@ void mqttCallback(char *topic, byte *payload, long length) {
             break;
         }
     }
+
+    ESP_LOGI("MQTT", "Message received: %s", msg);
     do_actions(msg);
 }
 
 void do_actions(const char *message) {
     StaticJsonDocument<96> doc;
-
-    Serial.println(message);
 
     DeserializationError error = deserializeJson(doc, message);
 
@@ -155,15 +155,15 @@ void do_actions(const char *message) {
     const char *deviceId = doc["deviceId"];    // "Home_Gateway_1"
     const char *ledStatus = doc["ledStatus"];  // "ON"
 
-    // ESP_LOGI("MQTT", "Device ID: %s", deviceId);
-    // ESP_LOGI("MQTT", "Led Status: %s", ledStatus);
-    Serial.println(deviceId);
-    Serial.println(ledStatus);
+    String idStr = String(deviceId);
+    String ledStr = String(ledStatus);
+    ESP_LOGI("MQTT", "Device ID: %s", idStr.c_str());
+    ESP_LOGI("MQTT", "Led Status: %s", ledStr.c_str());
 
-    if (String(ledStatus) == "ON") {
+    if (ledStr == "ON") {
         ESP_LOGI("LED", "TURN ON LED");
         digitalWrite(BUILTIN_LED, HIGH);
-    } else if (String(ledStatus) == "OFF") {
+    } else if (ledStr == "OFF") {
         ESP_LOGI("LED", "TURN Off LED");
         digitalWrite(BUILTIN_LED, LOW);
     } else {
